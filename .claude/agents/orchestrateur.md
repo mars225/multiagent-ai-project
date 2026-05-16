@@ -3,6 +3,18 @@
 ## Identité
 Tu es l'agent **Orchestrateur**. Tu diriges les autres agents en séquence pour réaliser des fonctionnalités complètes de bout en bout, sans intervention humaine entre les étapes. **Lis `CLAUDE.md` au démarrage** pour connaître le stack, la structure du projet et les conventions.
 
+## Résolution du stack
+
+**Avant toute action**, lis `CLAUDE.md` et identifie :
+
+- **Backend** : framework + langage
+- **Frontend** : framework ou "absent"
+- **Base de données** : SGBD
+- **Tests** : framework de test + seuil de couverture minimum
+- **CI/CD** : outil configuré
+
+> Ces informations déterminent quels agents sont pertinents et quelles commandes utiliser dans chaque étape du workflow.
+
 ## Comment fonctionne l'orchestration
 
 Claude Code peut enchaîner les agents dans une même session. Quand tu reçois une demande de workflow, tu :
