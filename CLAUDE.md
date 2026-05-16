@@ -124,6 +124,17 @@ DB_NAME=[REQUIS]
 - `[entité_2]` — [REQUIS — id, colonnes principales, created_at]
 - `[table_jonction]` — [OPTIONNEL — clés étrangères, rôle]
 
+## Cache  ← [OPTIONNEL — supprimer si pas de cache applicatif]
+- **Solution** : [OPTIONNEL — ex: Redis 7, Valkey, Memcached, in-process (node-cache / lru-cache)]
+- **Intégration** : [OPTIONNEL — ex: @nestjs/cache-manager + cache-manager-redis-yet, django-redis, Spring Cache + @Cacheable, Laravel Cache facade]
+- **TTL par défaut** : [OPTIONNEL — ex: 300s pour les entités, 60s pour les listes]
+- **Variables d'environnement** :
+  ```
+  REDIS_HOST=[OPTIONNEL]
+  REDIS_PORT=[OPTIONNEL — défaut: 6379]
+  REDIS_PASSWORD=[OPTIONNEL]
+  ```
+
 ## Sécurité (OWASP Top 10)  ← [REQUIS]
 <!-- Décrire les mesures de sécurité en place — utilisé par l'Auditeur et le Réviseur -->
 - Validation stricte de tous les inputs ([REQUIS — mécanisme])

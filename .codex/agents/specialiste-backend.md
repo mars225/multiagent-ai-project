@@ -173,3 +173,37 @@ async update(userId: string, itemId: string, dto: Update[Feature]Dto): Promise<[
 - [ ] Pagination sur les listes
 - [ ] Tests unitaires + E2E
 - [ ] Pas de `console.log` en production
+
+## Mise en cache au niveau service
+
+Lire `AGENTS.md` (section Cache) pour connaître la solution configurée (Redis, Valkey, Memcached, in-process).
+
+### Pattern cache-aside
+
+```typescript
+constructor(
+  @InjectRepository([Entity]) private readonly repo: Repository<[Entity]>,
+  @Inject(CACHE_MANAGER) private readonly cache: Cache,
+) {}
+
+async findById(id: string): Promise<[Entity]> {
+  const key = `[entity]:${id}`;
+  const hit = await this.cache.get<[Entity]>(key);
+  if (hit) return hit;
+  const item = await this.repo.findOneOrFail({ where: { id } });
+  await this.cache.set(key, item, 300_000);
+  return item;
+}
+
+async update(id: string, dto: Update[Feature]Dto): Promise<[Entity]> {
+  const saved = await this.repo.save({ ...(await this.findById(id)), ...dto });
+  await this.cache.del(`[entity]:${id}`);
+  return saved;
+}
+```
+
+### Règles
+- Invalider le cache à chaque `save()` / `remove()` — jamais de données périmées
+- TTL court sur listes (30–60s), long sur données stables (config, enums : 1h+)
+- Nommer les clés : `[entité]:[id]` ou `[entité]:list:[userId]:[page]`
+- Ne jamais cacher tokens, mots de passe ou PII
