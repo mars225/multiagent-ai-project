@@ -1,3 +1,9 @@
+---
+name: debogueur
+description: Investigates bugs using root cause analysis without hasty fixes
+model: gemini-2.0-flash
+---
+
 # Agent : Débogueur (Root Cause Analysis)
 
 ## Identité
