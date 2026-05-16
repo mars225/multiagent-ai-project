@@ -224,3 +224,106 @@ EXPLAIN (ANALYZE, BUFFERS) SELECT * FROM [table] WHERE [col] = 'value';
 -- Si "Seq Scan" → ajouter un index
 -- Si "Index Scan" → OK
 ```
+
+### Mise en cache des appels DB
+
+Lire `CLAUDE.md` (section Cache) pour connaître la solution configurée sur le projet.
+
+#### Stack disponible
+
+| Solution | Type | Quand l'utiliser |
+|----------|------|-----------------|
+| **Redis 7** | Distribué, persistant | Production multi-instances, sessions, queues, pub/sub |
+| **Valkey** | Fork Redis open-source | Même usage que Redis, sans contrainte de licence commerciale |
+| **Memcached** | Distribué, volatile | Cache read-only haute fréquence, données simples |
+| **In-process** | Mémoire locale (`lru-cache`, `node-cache`) | Instance unique, données très stables (config, enums) |
+
+#### Intégration par framework
+
+**NestJS — `@nestjs/cache-manager` + `cache-manager-redis-yet` :**
+```typescript
+// app.module.ts
+CacheModule.registerAsync({
+  isGlobal: true,
+  useFactory: async () => ({
+    store: await redisStore({
+      socket: { host: process.env.REDIS_HOST, port: +process.env.REDIS_PORT },
+    }),
+    ttl: 300_000, // TTL par défaut : 5 min (en ms)
+  }),
+});
+```
+
+**Django — `django-redis` :**
+```python
+# settings.py
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ["REDIS_URL"],
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+        "TIMEOUT": 300,
+    }
+}
+```
+
+**Spring Boot — Spring Cache + Redis :**
+```java
+@EnableCaching
+@Bean
+public RedisCacheConfiguration cacheConfiguration() {
+    return RedisCacheConfiguration.defaultCacheConfig()
+        .entryTtl(Duration.ofSeconds(300))
+        .disableCachingNullValues();
+}
+
+// Usage dans un service :
+@Cacheable(value = "[entity]", key = "#id")
+public [Entity] findById(String id) { ... }
+
+@CacheEvict(value = "[entity]", key = "#id")
+public void update(String id, ...) { ... }
+```
+
+**Laravel — Cache facade :**
+```php
+$item = Cache::remember("[entity]:{$id}", 300, fn() => [Entity]::findOrFail($id));
+Cache::forget("[entity]:{$id}"); // invalider après update
+```
+
+#### Pattern cache-aside (universel)
+
+```typescript
+// NestJS — cache-aside dans un service
+async findById(id: string): Promise<[Entity]> {
+  const key = `[entity]:${id}`;
+  const cached = await this.cache.get<[Entity]>(key);
+  if (cached) return cached;
+
+  const item = await this.repo.findOneOrFail({ where: { id } });
+  await this.cache.set(key, item, 300_000);
+  return item;
+}
+
+async update(userId: string, id: string, dto: Update[Feature]Dto): Promise<[Entity]> {
+  const saved = await this.repo.save({ ...(await this.findById(id)), ...dto });
+  await this.cache.del(`[entity]:${id}`); // invalider après écriture
+  return saved;
+}
+```
+
+#### Règles d'invalidation
+
+- **Invalider à chaque `save()` / `remove()`** — ne jamais servir de données périmées après écriture
+- **TTL court sur les listes** (30–60s) — elles changent souvent
+- **TTL long sur les ressources stables** (config, enums, données immuables : 1h+)
+- **Nommer les clés** : `[entité]:[id]`, `[entité]:list:[userId]:[page]`
+- **Ne jamais cacher** : tokens, mots de passe, PII, réponses d'authentification
+
+#### Checklist cache
+- [ ] Solution de cache définie dans `CLAUDE.md` (section Cache)
+- [ ] `REDIS_HOST`, `REDIS_PORT` dans `.env` et `.env.example`
+- [ ] TTL adapté à la fréquence de modification
+- [ ] Invalidation explicite à chaque mutation (update, delete)
+- [ ] Clés namespaceées et cohérentes
+- [ ] Aucune donnée sensible mise en cache
