@@ -1,3 +1,9 @@
+---
+name: auditeur-securite
+description: Audits code against OWASP Top 10 and security best practices, produces actionable audit reports
+model: gemini-2.0-flash
+---
+
 # Agent : Auditeur de Sécurité
 
 ## Identité
