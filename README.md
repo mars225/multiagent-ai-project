@@ -10,6 +10,7 @@ Un système d'agents IA spécialisés pour le développement logiciel, compatibl
 - [Structure du dépôt](#structure-du-dépôt)
 - [Démarrage rapide](#démarrage-rapide)
 - [Catalogue des agents](#catalogue-des-agents)
+- [Skills](#skills)
 - [Workflows types](#workflows-types)
 - [Référence des fichiers de configuration](#référence-des-fichiers-de-configuration)
 - [Bonnes pratiques](#bonnes-pratiques)
@@ -44,26 +45,62 @@ ai-project/
 │
 ├── .claude/
 │   ├── settings.local.json          # Permissions locales (non commité)
-│   └── agents/
-│       ├── orchestrateur.md
-│       ├── agenda.md
-│       ├── scout.md
-│       ├── codeur.md
-│       ├── specialiste-backend.md
-│       ├── specialiste-frontend.md
-│       ├── fullstack-et-perf.md
-│       ├── testeur.md
-│       ├── reviseur.md
-│       ├── debogueur.md
-│       ├── auditeur-securite.md
-│       ├── pentester.md
-│       ├── devops.md
-│       ├── dba.md
-│       ├── concepteur-ui.md
-│       └── documentation.md
+│   ├── agents/                      # 16 agents Claude Code
+│   │   ├── orchestrateur.md
+│   │   ├── agenda.md
+│   │   ├── scout.md
+│   │   ├── codeur.md
+│   │   ├── specialiste-backend.md
+│   │   ├── specialiste-frontend.md
+│   │   ├── fullstack-et-perf.md
+│   │   ├── testeur.md
+│   │   ├── reviseur.md
+│   │   ├── debogueur.md
+│   │   ├── auditeur-securite.md
+│   │   ├── pentester.md
+│   │   ├── devops.md
+│   │   ├── dba.md
+│   │   ├── concepteur-ui.md
+│   │   └── documentation.md
+│   └── skills/                      # 6 skills Claude Code (invocation /skill-name)
+│       ├── new-feature.md
+│       ├── fix-bug.md
+│       ├── security-audit.md
+│       ├── new-module.md
+│       ├── release.md
+│       └── review-mr.md
 │
-├── .gemini/agents/                  # Mêmes agents, adaptés pour Gemini CLI
-└── .codex/agents/                   # Mêmes agents, adaptés pour Codex
+├── .gemini/
+│   ├── agents/                      # 16 agents Gemini CLI
+│   └── skills/                      # 6 skills Gemini CLI (activation auto ou /skills)
+│       ├── new-feature/SKILL.md
+│       ├── fix-bug/SKILL.md
+│       ├── security-audit/SKILL.md
+│       ├── new-module/SKILL.md
+│       ├── release/SKILL.md
+│       └── review-mr/SKILL.md
+│
+├── .codex/agents/                   # 16 agents Codex (routage par frontmatter YAML)
+│
+└── .agents/skills/                  # 6 skills Codex (standard OpenAI)
+    ├── new-feature/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml
+    ├── fix-bug/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml
+    ├── security-audit/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml       # allow_implicit_invocation: false
+    ├── new-module/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml
+    ├── release/
+    │   ├── SKILL.md
+    │   └── agents/openai.yaml       # allow_implicit_invocation: false
+    └── review-mr/
+        ├── SKILL.md
+        └── agents/openai.yaml       # allow_implicit_invocation: false
 ```
 
 ---
@@ -134,7 +171,15 @@ Ajouter au `.gitignore` du projet :
 .env.local
 ```
 
-### Étape 4 — Invoquer un agent
+### Étape 4 — Copier les skills dans votre projet
+
+```bash
+cp -r .claude/skills  /votre-projet/.claude/skills
+cp -r .gemini/skills  /votre-projet/.gemini/skills
+cp -r .agents/skills  /votre-projet/.agents/skills
+```
+
+### Étape 5 — Invoquer un agent
 
 **Claude Code :**
 ```
@@ -211,6 +256,75 @@ Agent({
 |-------|---------|------|-----------------|
 | **Concepteur UI** | `concepteur-ui.md` | Design system, UX, accessibilité WCAG AA | Specs d'interface ou design system |
 | **Documentation** | `documentation.md` | Swagger/OpenAPI, README, CONTRIBUTING, CHANGELOG, ADR | Avant/après chaque release |
+
+---
+
+## Skills
+
+Les skills sont des raccourcis qui encapsulent les workflows d'agents en une seule commande. Chaque skill lit le fichier de configuration de la plateforme (`CLAUDE.md`, `GEMINI.md` ou `AGENTS.md`) puis orchestre la séquence d'agents correspondante.
+
+### Catalogue des skills (commun aux 3 plateformes)
+
+| Skill | Workflow | Description |
+|-------|----------|-------------|
+| `new-feature` | WF-1 | Feature complète : Agenda → Scout → DBA → Codeur → Testeur → Réviseur → Doc |
+| `fix-bug` | WF-2 | Fix de bug : Débogueur → Scout → Codeur → Testeur → Réviseur |
+| `security-audit` | WF-3 | Audit OWASP + intrusion : Auditeur → Pentester → Réviseur |
+| `new-module` | WF-4 | Scaffold module : Agenda → DBA → Codeur → Frontend → Testeur → Doc → DevOps |
+| `release` | WF-5 | Préparation release : Testeur → Auditeur → DBA → Perf → Réviseur → Doc → DevOps |
+| `review-mr` | WF-6 | Revue PR/MR : Scout → Réviseur → Testeur → Auditeur → Verdict |
+
+### Invocation par plateforme
+
+**Claude Code** — commande `/skill-name` :
+```
+/new-feature système de commentaires
+/fix-bug crash au login avec Google OAuth
+/security-audit
+/new-module notifications
+/release 1.2.0
+/review-mr
+```
+
+**Gemini CLI** — activation automatique ou via `/skills` :
+```
+@orchestrateur nouvelle feature : système de commentaires
+/skills new-feature système de commentaires
+/skills fix-bug crash au login
+/skills security-audit
+/skills release 1.2.0
+```
+
+**Codex** — invocation explicite (`$skill-name`) ou implicite (auto-routing par description) :
+```
+$new-feature système de commentaires
+$fix-bug crash au login avec Google OAuth
+$security-audit          # invocation explicite requise (allow_implicit_invocation: false)
+$new-module notifications
+$release 1.2.0           # invocation explicite requise (allow_implicit_invocation: false)
+$review-mr               # invocation explicite requise (allow_implicit_invocation: false)
+```
+
+### Politique d'invocation implicite (Codex)
+
+Certaines skills Codex nécessitent une invocation **explicite** pour éviter des déclenchements non intentionnels sur des opérations sensibles :
+
+| Skill | Invocation implicite | Raison |
+|-------|---------------------|--------|
+| `new-feature` | ✅ Autorisée | Tâche courante, pas de risque |
+| `fix-bug` | ✅ Autorisée | Tâche courante, pas de risque |
+| `new-module` | ✅ Autorisée | Tâche courante, pas de risque |
+| `security-audit` | ❌ Explicite uniquement | Lance des tests d'intrusion |
+| `release` | ❌ Explicite uniquement | Action irréversible en production |
+| `review-mr` | ❌ Explicite uniquement | Requiert un diff fourni manuellement |
+
+### Emplacements des skills
+
+| Plateforme | Chemin | Format |
+|------------|--------|--------|
+| Claude Code | `.claude/skills/*.md` | Markdown, invoqué via `/skill-name` |
+| Gemini CLI | `.gemini/skills/<name>/SKILL.md` | YAML frontmatter + Markdown |
+| Codex | `.agents/skills/<name>/SKILL.md` | YAML frontmatter + Markdown + `openai.yaml` optionnel |
 
 ---
 
@@ -388,6 +502,12 @@ Non. Le Pentester est explicitement limité aux environnements de développement
 
 **Q : Comment ajouter un agent personnalisé ?**  
 Créer un fichier `mon-agent.md` dans `.claude/agents/` (et les équivalents dans `.gemini/agents/` et `.codex/agents/`). Suivre la structure des agents existants : section Identité, Responsabilités, Format de sortie, Comportement.
+
+**Q : Quelle différence entre un agent et un skill ?**
+Un **agent** est un expert spécialisé (Codeur, Testeur, DBA…) qui accomplit une tâche précise. Un **skill** est un raccourci qui orchestre plusieurs agents en séquence pour réaliser un workflow complet (feature, bug, release…). En pratique : les agents sont les briques, les skills sont les recettes.
+
+**Q : Puis-je créer mes propres skills ?**
+Oui. Créer un fichier `mon-skill.md` dans `.claude/skills/` (et les équivalents dans `.gemini/skills/<name>/SKILL.md` et `.agents/skills/<name>/SKILL.md`). La `description` du frontmatter YAML détermine quand Gemini et Codex activent la skill automatiquement — soyez précis et distinctif.
 
 **Q : `settings.local.json` est commité dans le repo original, que faire ?**  
 Supprimer le fichier du suivi Git sans le supprimer du disque :
