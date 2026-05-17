@@ -126,19 +126,19 @@ export class [Feature]Service {
 
   getItems(filters: Filters): Observable<PaginatedResult<[Feature]>> {
     const params = new HttpParams({ fromObject: removeNullish(filters) });
-    return this.http.get<PaginatedResult<[Feature]>>(`${this.apiUrl}/[feature]`, { params });
+    return this.http.get<PaginatedResult<[Feature]>>(this.apiUrl + '/[feature]', { params });
   }
 
   createItem(dto: Create[Feature]Dto): Observable<[Feature]> {
-    return this.http.post<[Feature]>(`${this.apiUrl}/[feature]`, dto);
+    return this.http.post<[Feature]>(this.apiUrl + '/[feature]', dto);
   }
 
   updateItem(id: string, dto: Update[Feature]Dto): Observable<[Feature]> {
-    return this.http.patch<[Feature]>(`${this.apiUrl}/[feature]/${id}`, dto);
+    return this.http.patch<[Feature]>(this.apiUrl + '/[feature]/' + id, dto);
   }
 
   deleteItem(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/[feature]/${id}`);
+    return this.http.delete<void>(this.apiUrl + '/[feature]/' + id);
   }
 }
 ```
