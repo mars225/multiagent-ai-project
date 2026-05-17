@@ -141,10 +141,10 @@ export class [Feature]Repository {
       .createQueryBuilder('item')
       .where('item.creator_id = :userId', { userId });
 
-    if (filters.search) qb.andWhere('item.name ILIKE :search', { search: `%${filters.search}%` });
+    if (filters.search) qb.andWhere('item.name ILIKE :search', { search: '%' + filters.search + '%' });
 
     return qb
-      .orderBy(`item.${filters.sortBy ?? 'created_at'}`, filters.sortOrder ?? 'DESC')
+      .orderBy('item.' + (filters.sortBy ?? 'created_at'), filters.sortOrder ?? 'DESC')
       .take(filters.limit)
       .skip((filters.page - 1) * filters.limit)
       .getManyAndCount();
@@ -157,7 +157,7 @@ export class [Feature]Repository {
 async update(userId: string, itemId: string, dto: Update[Feature]Dto): Promise<[Entity]> {
   const item = await this.repo.findOne({ where: { id: itemId }, relations: ['creator'] });
 
-  if (!item) throw new NotFoundException(`[Feature] ${itemId} introuvable`);
+  if (!item) throw new NotFoundException('[Feature] ' + itemId + ' introuvable');
   if (item.creator.id !== userId) throw new ForbiddenException('Accès refusé');
 
   return this.repo.save({ ...item, ...dto });

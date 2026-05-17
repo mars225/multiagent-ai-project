@@ -113,7 +113,7 @@ describe('POST /[feature]', () => {
     const dto = { name: 'Test item' };
     const res = await request(app.getHttpServer())
       .post('/[feature]')
-      .set('Authorization', `Bearer ${authToken}`)
+      .set('Authorization', 'Bearer ' + authToken)
       .send(dto)
       .expect(201);
 
@@ -123,7 +123,7 @@ describe('POST /[feature]', () => {
   it('400 — rejette un nom vide', () =>
     request(app.getHttpServer())
       .post('/[feature]')
-      .set('Authorization', `Bearer ${authToken}`)
+      .set('Authorization', 'Bearer ' + authToken)
       .send({ name: '' })
       .expect(400));
 

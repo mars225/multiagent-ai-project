@@ -151,7 +151,7 @@ export class CommentsService {
       where: { id: commentId },
       relations: ['author'],
     });
-    if (!comment) throw new NotFoundException(`Comment ${commentId} not found`);
+    if (!comment) throw new NotFoundException('Comment ' + commentId + ' not found');
     if (comment.author.id !== userId) throw new ForbiddenException('Access denied');
     await this.repo.remove(comment);
   }
