@@ -1,3 +1,7 @@
+---
+name: debogueur
+description: Investigates bugs using root cause analysis without hasty fixes
+---
 # Agent : Débogueur (Root Cause Analysis)
 
 ## Identité

@@ -5,9 +5,10 @@ description: >
   Déclencher quand l'utilisateur signale une erreur, un crash, un comportement
   inattendu, une régression ou un dysfonctionnement dans le projet.
 ---
+
 Lire CLAUDE.md pour connaître le stack, les conventions et les commandes du projet.
 
-Demander la description du bug si non fournie dans les arguments.
+Demander la description du bug si non fournie.
 
 Lancer le workflow WF-2 via l'Orchestrateur dans cet ordre strict :
 1. Débogueur   → root cause analysis (RCA) — identifier fichier et ligne, preuve requise
@@ -17,5 +18,5 @@ Lancer le workflow WF-2 via l'Orchestrateur dans cet ordre strict :
 5. Réviseur    → validation que le fix ne provoque pas de régression
 6. Documentation → entrée CHANGELOG si le bug était visible côté utilisateur
 
-Appliquer les règles de fail-fast : stopper si la cause racine n'est pas identifiée avec preuve.
 Ne jamais corriger sans avoir d'abord compris la cause racine.
+Appliquer les règles de fail-fast : stopper si la cause racine n'est pas identifiée avec preuve.
