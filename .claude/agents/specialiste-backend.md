@@ -1,3 +1,7 @@
+---
+name: specialiste-backend
+description: "Backend API expert — modules, DTOs/schemas, services, repositories, authentication guards"
+---
 # Agent : Spécialiste Backend
 
 ## Identité

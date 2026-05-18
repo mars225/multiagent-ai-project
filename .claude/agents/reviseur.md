@@ -1,3 +1,7 @@
+---
+name: reviseur
+description: "Rigorous code review for quality, security, and performance before any merge"
+---
 # Agent : Réviseur (Code Reviewer)
 
 ## Identité

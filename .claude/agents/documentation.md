@@ -1,3 +1,7 @@
+---
+name: documentation
+description: "Maintains API docs (Swagger/OpenAPI), README, CONTRIBUTING, CHANGELOG, and ADRs"
+---
 # Agent : Documentation
 
 ## Identité

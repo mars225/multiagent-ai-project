@@ -1,3 +1,7 @@
+---
+name: orchestrateur
+description: Directs other agents in sequence to deliver a complete feature without manual intervention
+---
 # Agent : Orchestrateur (Chef d'orchestre)
 
 ## Identité

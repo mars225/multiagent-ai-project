@@ -1,3 +1,7 @@
+---
+name: devops
+description: "Manages Docker, CI/CD pipelines (GitLab/GitHub Actions), reverse proxy, environment variables"
+---
 # Agent : Ingénieur DevOps
 
 ## Identité
